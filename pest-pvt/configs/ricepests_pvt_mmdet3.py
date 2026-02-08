@@ -3,9 +3,9 @@
 
 _base_ = ['mmdet::_base_/default_runtime.py']
 
-# Import mmpretrain for PVT backbone
+# Import local PVT implementation
 custom_imports = dict(
-    imports=['mmpretrain.models'],
+    imports=['pvt_v2'],
     allow_failed_imports=False)
 
 # ======================== Model ========================
@@ -18,14 +18,12 @@ model = dict(
         bgr_to_rgb=True,
         pad_size_divisor=32),
     backbone=dict(
-        type='mmpretrain.PVTv2',  # Use PVTv2 from mmpretrain
-        arch='b2',  # b0, b1, b2, b3, b4, b5
-        out_indices=(0, 1, 2, 3),
-        init_cfg=dict(
-            type='Pretrained',
-            checkpoint='https://download.openmmlab.com/mmclassification/v0/pvt_v2/pvt-v2-b2_3rdparty_in1k_20220915-01126bc1.pth',
-            prefix='backbone.')),
+        type='LocalPVTv2',
+        embed_dims=[64, 128, 320, 512],
+        num_layers=[3, 4, 6, 3],
+        init_cfg=None),
     neck=dict(
+
         type='FPN',
         in_channels=[64, 128, 320, 512],  # PVTv2-b2 output channels
         out_channels=256,
